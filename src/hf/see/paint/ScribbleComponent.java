@@ -21,6 +21,7 @@ public class ScribbleComponent extends JComponent {
 	
 	
 	List<Point> Points = new ArrayList<Point>();
+	boolean draggingComplete = true;
 	
 	
 	private List<Line2D> convertPointsToLines()
@@ -49,6 +50,12 @@ public class ScribbleComponent extends JComponent {
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D)g;
+		
+		if(draggingComplete == true)
+		{
+			draggingComplete = false;
+		}
+		
 		List<Line2D> Lines = convertPointsToLines();
 		for(Iterator<Line2D> i = Lines.iterator();i.hasNext();)
 		{	
@@ -63,15 +70,21 @@ public class ScribbleComponent extends JComponent {
 			// System.out.println("x position = " + e.getX());
 			// System.out.println("x position = " + e.getY());
 			Points.add(new Point(e.getX(), e.getY()));
-			revalidate();
+			System.out.println( e.getX() + "/" +  e.getY() + " point added");
 			repaint();
 			
 		}
 
 		public void mouseMoved(MouseEvent arg0) {
 			// TODO Auto-generated method stub
-			// System.out.println("mouse moved");
-			Points.add(null);
+			// System.out.println("mouse moved");			
+			if(draggingComplete == false)
+			{
+				draggingComplete = true;
+				Points.add(null);
+				System.out.println("null point added");
+			}
+						
 			
 		}
 		
