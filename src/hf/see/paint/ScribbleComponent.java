@@ -30,8 +30,9 @@ public class ScribbleComponent extends JComponent {
 		Point lastPoint = null;
 		Point currentPoint = null;
 		
-		for(Iterator<Point> i = Points.iterator();i.hasNext();currentPoint = i.next())
+		for(Iterator<Point> i = Points.iterator();i.hasNext();)
 		{	
+			currentPoint = i.next();
 			if(lastPoint == null || currentPoint == null)
 			{
 				lastPoint = currentPoint;
@@ -66,9 +67,7 @@ public class ScribbleComponent extends JComponent {
 	public class MyMouseMotionListener implements MouseMotionListener {
 
 		public void mouseDragged(MouseEvent e) {
-			// System.out.println("in mouseDragged...");
-			// System.out.println("x position = " + e.getX());
-			// System.out.println("x position = " + e.getY());
+
 			Points.add(new Point(e.getX(), e.getY()));
 			System.out.println( e.getX() + "/" +  e.getY() + " point added");
 			repaint();
@@ -76,8 +75,7 @@ public class ScribbleComponent extends JComponent {
 		}
 
 		public void mouseMoved(MouseEvent arg0) {
-			// TODO Auto-generated method stub
-			// System.out.println("mouse moved");			
+			// TODO Auto-generated method stub		
 			if(draggingComplete == false)
 			{
 				draggingComplete = true;
