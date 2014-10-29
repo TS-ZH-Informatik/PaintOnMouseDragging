@@ -1,5 +1,7 @@
 package hf.see.paint;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -15,74 +17,83 @@ import javax.swing.JComponent;
 @SuppressWarnings("serial")
 public class ScribbleComponent extends JComponent {
 	
+	List<AdvancedLine> Lines = new ArrayList<AdvancedLine>();	
+	int currentThickness = 1;
+	Color currentColor = Color.BLACK;
+	
 	public ScribbleComponent() {
 		this.addMouseMotionListener(new MyMouseMotionListener());
 	}
 	
-	
-	List<Point> Points = new ArrayList<Point>();
-	boolean draggingComplete = true;
-	
-	
-	private List<Line2D> convertPointsToLines()
+	public int setThickness(int thickness)
 	{
-		List<Line2D> Lines = new ArrayList<Line2D>();
-		Point lastPoint = null;
-		Point currentPoint = null;
-		
-		for(Iterator<Point> i = Points.iterator();i.hasNext();)
-		{	
-			currentPoint = i.next();
-			if(lastPoint == null || currentPoint == null)
-			{
-				lastPoint = currentPoint;
-				continue;
-			}
-			
-			Line2D line = new Line2D.Float(lastPoint.x, lastPoint.y, currentPoint.x, currentPoint.y);
-			lastPoint = currentPoint;
-			Lines.add(line);
-		}
-		return Lines;
+		thickness = (thickness < 1)?1:thickness;
+		thickness = (thickness > 20)?20:thickness;
+		currentThickness = thickness;
+		return thickness;
 	}
 	
+	public void setColor(Color color)
+	{
+		currentColor = color;
+	}
+	
+	public void Erase()
+	{
+		Lines.clear();
+		repaint();
+	}
+	
+	class AdvancedLine
+	{
+		public AdvancedLine(float x1, float y1, float x2, float y2)
+		{
+			Line = new Line2D.Float(x1, y1, x2, y2);
+			Thickness = currentThickness;
+			LineColor = currentColor;
+			
+		}
+		public Line2D Line = null;
+		public int Thickness = 1;
+		public Color LineColor = Color.BLACK;
+	}	
 	
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2 = (Graphics2D)g;
-		
-		if(draggingComplete == true)
-		{
-			draggingComplete = false;
-		}
-		
-		List<Line2D> Lines = convertPointsToLines();
-		for(Iterator<Line2D> i = Lines.iterator();i.hasNext();)
+
+
+		for(Iterator<AdvancedLine> i = Lines.iterator();i.hasNext();)
 		{	
-			g2.draw(i.next());
+			AdvancedLine currentLine = i.next();
+			g2.setStroke(new BasicStroke(currentLine.Thickness));
+			g2.setColor(currentLine.LineColor);
+			g2.draw(currentLine.Line);
 		}
 	}
 	
 	public class MyMouseMotionListener implements MouseMotionListener {
 
+		Point lastPoint = null;
+		
 		public void mouseDragged(MouseEvent e) {
 
-			Points.add(new Point(e.getX(), e.getY()));
-			System.out.println( e.getX() + "/" +  e.getY() + " point added");
+			if(lastPoint == null)
+			{
+				lastPoint = new Point(e.getX(), e.getY());
+			}
+			else
+			{
+				Lines.add(new AdvancedLine(lastPoint.x, lastPoint.y, e.getX(), e.getY()));
+				lastPoint = new Point(e.getX(), e.getY());
+			}
 			repaint();
 			
 		}
 
 		public void mouseMoved(MouseEvent arg0) {
-			// TODO Auto-generated method stub		
-			if(draggingComplete == false)
-			{
-				draggingComplete = true;
-				Points.add(null);
-				System.out.println("null point added");
-			}
-						
+			lastPoint = null;						
 			
 		}
 		
